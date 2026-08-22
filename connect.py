@@ -1,13 +1,10 @@
-import os
 import psycopg2
 import psycopg2.extras
-from dotenv import load_dotenv
-
-load_dotenv()
+import streamlit as st
 
 
 def get_connection():
-    return psycopg2.connect(os.getenv("DATABASE_URL"))
+    return psycopg2.connect(st.secrets["DATABASE_URL"])
 
 
 def run_query(query, params=None):
