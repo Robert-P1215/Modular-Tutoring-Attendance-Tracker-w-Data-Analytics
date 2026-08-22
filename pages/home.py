@@ -78,7 +78,7 @@ for rec in tutor_schedule:
 
 is_session_active = active_tutor is not None
 
-
+availableCourses = run_query('''SELECT * FROM courses''')
 result = []
 
 for day, times in merged.items():
@@ -168,7 +168,11 @@ with regForm:
     student_last_name = st.text_input("Student Last Name", help="Enter your last name")
     student_PID = st.text_input("Student PID", max_chars=7, help="Enter your 7-digit PID")
 
-    enrolled_courses = st.multiselect("Enrolled Courses", options=["CS101", "CS102", "CS103"])
+    enrolled_courses = st.multiselect(
+        "Enrolled Courses",
+        options=availableCourses,
+        format_func=lambda c: f"{c['ccode']} - {c['level']} - Professor {c['plname']}",
+    )
 
     submit_button = st.form_submit_button("Register Student")
 
@@ -195,6 +199,6 @@ with regForm:
                 VALUES (%s, %s)
             """
             for course in enrolled_courses:
-                run_query(query_registration, (student_PID, course))
+                run_query(query_registration, (student_PID, course["ccode"]))
 
             st.success("Student registered successfully!")
