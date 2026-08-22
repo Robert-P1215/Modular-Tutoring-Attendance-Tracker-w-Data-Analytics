@@ -11,12 +11,14 @@ def get_connection():
 
 
 def run_query(query, params=None):
-    """Run a SELECT query and return rows as a list of dicts."""
+    """Run a query. Returns rows as a list of dicts for SELECT-like queries, otherwise None."""
     conn = get_connection()
     try:
         with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
             cur.execute(query, params)
-            return cur.fetchall()
+            result = cur.fetchall() if cur.description is not None else None
+        conn.commit()
+        return result
     finally:
         conn.close()
 

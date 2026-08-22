@@ -1,20 +1,11 @@
 import streamlit as st
 from connect import run_query
 
-st.title("Hello")
 
-tutors = run_query("SELECT * FROM tutors")
+pages = [
+    st.Page("pages/home.py", title="Home Page"),
+    st.Page("pages/admin.py", title="Admin Page")
+]
 
-st.write(tutors)
-
-tutorTimes = []
-for item in tutors:
-    for time in item['ttimes']:
-        tutorTimes.append((item['tfname'], time))
-
-selected_tutor = st.selectbox(
-    "Select",
-    tutorTimes,
-    format_func=lambda tutor: f"{tutor[0]} : {tutor[1]}",
-    accept_new_options=False
-)
+pg = st.navigation(pages)
+pg.run()
