@@ -106,7 +106,7 @@ result.sort(key=lambda x: day_order[x.split(" ")[0]])
 hours = "\n".join(f"- {time}" for time in result)
 
 st.markdown(f"""
-Welcome to the Tutoring Session Attendance App! This semester, our current hours are:
+Welcome to the Tutoring Session Attendance App for Korean! We offer Korean tutoring both in-person at SIPA 1 240 as well as through zoom. This semester, our current hours are:
 
 {hours}
 
