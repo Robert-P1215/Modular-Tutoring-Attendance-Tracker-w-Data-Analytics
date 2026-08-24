@@ -18,7 +18,7 @@ def confirm_delete(description, delete_query, delete_params, key_suffix):
             run_query(delete_query, delete_params)
             st.rerun()
     with cancel_col:
-        if st.button("Cancel", key=f"confirm_delete_cancel_{key_suffix}", use_container_width=True):
+        if st.button("Cancel", key=f"confirm_delete_cancel_{key_suffix}", width='stretch'):
             st.rerun()
 
 
@@ -80,7 +80,7 @@ def confirm_reset_data(tables):
             st.session_state.pop("session_results", None)
             st.rerun()
     with cancel_col:
-        if st.button("Cancel", key="confirm_reset_cancel", use_container_width=True):
+        if st.button("Cancel", key="confirm_reset_cancel", width='stretch'):
             st.rerun()
 
 
@@ -130,7 +130,7 @@ if not st.session_state.admin_authenticated:
 st.success("Logged in as admin.")
 
 with st.sidebar:
-    if st.button("Sign Out", key="admin_sign_out", type="primary", use_container_width=True):
+    if st.button("Sign Out", key="admin_sign_out", type="primary", width='stretch'):
         st.session_state.admin_authenticated = False
         st.rerun()
 
@@ -206,7 +206,7 @@ with col1:
 
         if session_results:
             session_df = pd.DataFrame(session_results)
-            st.dataframe(session_df, use_container_width=True)
+            st.dataframe(session_df, width='stretch')
             st.download_button(
                 "Download CSV",
                 data=session_df.to_csv(index=False),
@@ -220,7 +220,7 @@ with col1:
                 y=alt.Y("session_count:Q", title="Sessions"),
                 tooltip=[alt.Tooltip("date:T", title="Date"), alt.Tooltip("session_count:Q", title="Sessions")],
             ).properties(title="Sessions Over Time", height=280)
-            st.altair_chart(date_chart, use_container_width=True)
+            st.altair_chart(date_chart, width='stretch')
 
 with col2:
     st.header("Add/Modify Courses")
@@ -289,7 +289,7 @@ with col2:
                         st.success(f"Course {edit_course_code} updated successfully.")
                         st.rerun()
             with delete_col:
-                if st.button("Delete Course", key="delete_course", type="primary", use_container_width=True):
+                if st.button("Delete Course", key="delete_course", type="primary", width='stretch'):
                     confirm_delete(
                         f"course {selected_course['ccode']}",
                         "DELETE FROM courses WHERE ccode = %s",
@@ -359,7 +359,7 @@ with col3:
                         st.success(f"Tutor {edit_tutor_fname} {edit_tutor_lname} updated successfully.")
                         st.rerun()
             with delete_col:
-                if st.button("Delete Tutor", key="delete_tutor", type="primary", use_container_width=True):
+                if st.button("Delete Tutor", key="delete_tutor", type="primary", width='stretch'):
                     confirm_delete(
                         f"{selected_tutor['tfname']} {selected_tutor['tlname']} ({selected_tutor['tpid']})",
                         "DELETE FROM tutors WHERE tpid = %s",
@@ -410,7 +410,7 @@ with col4:
                         st.success(f"Professor {edit_prof_fname} {edit_prof_lname} updated successfully.")
                         st.rerun()
             with delete_col:
-                if st.button("Delete Professor", key="delete_prof", type="primary", use_container_width=True):
+                if st.button("Delete Professor", key="delete_prof", type="primary", width='stretch'):
                     confirm_delete(
                         f"{selected_prof['pfname']} {selected_prof['plname']}",
                         "DELETE FROM professors WHERE plname = %s",
@@ -449,7 +449,7 @@ with col5:
             y=alt.Y("session_count:Q", title="Sessions Attended"),
             tooltip=[alt.Tooltip("student:N", title="Student"), alt.Tooltip("session_count:Q", title="Sessions")],
         ).properties(height=300)
-        st.altair_chart(student_chart, use_container_width=True)
+        st.altair_chart(student_chart, width='stretch')
 
         tutor_summary = run_query("""
             SELECT t.tfname, t.tlname, COUNT(DISTINCT s.spid) AS students_assisted, COUNT(*) AS total_sessions
@@ -471,8 +471,8 @@ with col5:
                 alt.Tooltip("total_sessions:Q", title="Total Sessions"),
             ],
         ).properties(height=300)
-        st.altair_chart(tutor_chart, use_container_width=True)
-        st.dataframe(tutor_df[["tutor", "students_assisted", "total_sessions"]], use_container_width=True, hide_index=True)
+        st.altair_chart(tutor_chart, width='stretch')
+        st.dataframe(tutor_df[["tutor", "students_assisted", "total_sessions"]], width='stretch', hide_index=True)
 
         course_summary = run_query("""
             SELECT c.ccode, COUNT(DISTINCT s.spid) AS students_assisted, COUNT(*) AS total_sessions
@@ -496,7 +496,7 @@ with col5:
                     alt.Tooltip("total_sessions:Q", title="Total Sessions"),
                 ],
             ).properties(height=300)
-            st.altair_chart(course_chart, use_container_width=True)
+            st.altair_chart(course_chart, width='stretch')
 
 with col6:
     st.header("Reset Data")
