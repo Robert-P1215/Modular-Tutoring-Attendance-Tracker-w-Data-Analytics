@@ -22,31 +22,61 @@ def confirm_delete(description, delete_query, delete_params, key_suffix):
             st.rerun()
 
 
-def reset_all_data():
+# Order matters: children before parents, so FK constraints don't block deletion.
+RESET_TABLE_ORDER = ["session", "registration", "tutors", "students", "courses"]
+RESET_TABLE_LABELS = {
+    "session": "Sessions",
+    "registration": "Registrations",
+    "tutors": "Tutors",
+    "students": "Students",
+    "courses": "Courses",
+}
+# Deleting a parent requires its dependent child rows to go too, or the FK constraint blocks it.
+RESET_TABLE_DEPENDENTS = {
+    "tutors": ["session"],
+    "students": ["session", "registration"],
+    "courses": ["registration"],
+}
+
+
+def expand_reset_selection(tables):
+    expanded = set(tables)
+    for table in tables:
+        expanded.update(RESET_TABLE_DEPENDENTS.get(table, []))
+    return [t for t in RESET_TABLE_ORDER if t in expanded]
+
+
+def reset_selected_data(tables):
     conn = get_connection()
     try:
         with conn.cursor() as cur:
-            cur.execute("DELETE FROM session")
-            cur.execute("DELETE FROM registration")
-            cur.execute("DELETE FROM tutors")
-            cur.execute("DELETE FROM students")
-            cur.execute("DELETE FROM courses")
+            for table in RESET_TABLE_ORDER:
+                if table in tables:
+                    cur.execute(f"DELETE FROM {table}")
         conn.commit()
     finally:
         conn.close()
 
 
-@st.dialog("Confirm Full Data Reset")
-def confirm_reset_data():
+@st.dialog("Confirm Data Reset")
+def confirm_reset_data(tables):
+    expanded_tables = expand_reset_selection(tables)
+    extra_tables = [t for t in expanded_tables if t not in tables]
+
+    selected_labels = ", ".join(RESET_TABLE_LABELS[t] for t in expanded_tables)
     st.warning(
-        "This will permanently delete ALL tutors, students, courses, sessions, and course "
-        "registrations. Professor data will NOT be affected. This action cannot be undone."
+        f"This will permanently delete ALL data from: {selected_labels}. This action cannot be undone."
     )
+    if extra_tables:
+        extra_labels = ", ".join(RESET_TABLE_LABELS[t] for t in extra_tables)
+        st.info(
+            f"{extra_labels} will also be deleted since they reference the data you selected."
+        )
     st.write("Are you absolutely sure you want to reset this data?")
     yes_col, cancel_col = st.columns([3, 1])
     with yes_col:
-        if st.button("Yes, reset all data", key="confirm_reset_yes", type="primary"):
-            reset_all_data()
+        if st.button("Yes, reset selected data", key="confirm_reset_yes", type="primary"):
+            reset_selected_data(expanded_tables)
             st.session_state.pop("session_results", None)
             st.rerun()
     with cancel_col:
@@ -471,8 +501,8 @@ with col5:
 with col6:
     st.header("Reset Data")
     st.warning(
-        "This wipes ALL tutor, student, course, session, and registration data. "
-        "Professor data is not affected. This action cannot be undone."
+        "Select the data you want to wipe below. Professor data can never be reset here. "
+        "This action cannot be undone."
     )
 
     reset_counts = run_query("""
@@ -491,15 +521,22 @@ with col6:
     count_col4.metric("Sessions", reset_counts["sessions"])
     count_col5.metric("Registrations", reset_counts["registrations"])
 
+    reset_tables_selected = st.multiselect(
+        "Data to delete",
+        options=RESET_TABLE_ORDER,
+        format_func=lambda t: RESET_TABLE_LABELS[t],
+        key="reset_tables_selected",
+    )
+
     reset_confirmation_text = st.text_input(
         f'Type "{RESET_CONFIRMATION_PHRASE}" to enable the button below',
         key="reset_confirmation_text",
     )
 
     if st.button(
-        "Reset All Data",
+        "Reset Selected Data",
         key="reset_all_data_button",
         type="primary",
-        disabled=reset_confirmation_text != RESET_CONFIRMATION_PHRASE,
+        disabled=not reset_tables_selected or reset_confirmation_text != RESET_CONFIRMATION_PHRASE,
     ):
-        confirm_reset_data()
+        confirm_reset_data(reset_tables_selected)
