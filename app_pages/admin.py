@@ -2,9 +2,9 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 from connect import run_query, get_connection
-from app import zoomLink
 
 CHART_HUE = "#2a78d6"
+zoomLink = run_query("SELECT * FROM zoom")[0]["zlink"]
 
 RESET_CONFIRMATION_PHRASE = "RESET"
 

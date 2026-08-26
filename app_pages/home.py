@@ -3,7 +3,6 @@ import datetime
 import base64
 from zoneinfo import ZoneInfo
 from connect import run_query
-from app import zoomLink
 
 TZ = ZoneInfo("America/New_York")  # adjust if SIPA scheduling should use a different zone
 
@@ -13,6 +12,7 @@ st.title("Tutoring Session Attendance")
 st.session_state.admin_authenticated = False
 
 tutors = run_query("SELECT * FROM tutors")
+zoomLink = run_query("SELECT * FROM zoom")[0]["zlink"]
 
 from datetime import datetime
 
