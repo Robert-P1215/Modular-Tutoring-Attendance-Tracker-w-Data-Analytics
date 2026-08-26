@@ -1,6 +1,9 @@
 import streamlit as st
 import datetime
+from zoneinfo import ZoneInfo
 from connect import run_query
+
+TZ = ZoneInfo("America/New_York")  # adjust if SIPA scheduling should use a different zone
 
 
 st.title("Tutoring Session Attendance")
@@ -67,7 +70,7 @@ for day, times in days.items():
 # Find the tutor whose schedule covers right now, if any.
 # Slots are mutually exclusive but may be back-to-back (one ends when the
 # next starts) - use an exclusive end so the later tutor wins at the boundary.
-now = datetime.now()
+now = datetime.now(TZ)
 current_day = now.strftime("%A")
 current_time = now.time()
 
