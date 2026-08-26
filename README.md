@@ -91,3 +91,34 @@ PostgreSQL, referenced via `connect.py`:
 
 `registration.ccode` is `varchar(20)` (widened from its original `varchar(10)`,
 which was too short for real course codes like `KOR1113  U01`).
+
+## Use of generative AI
+
+Claude Code (Anthropic) was used as a development tool at a few distinct
+points in this project's history, each as its own separate session:
+
+- **Duplicate-widget bug investigation** ([b40375b](../../commit/b40375b),
+  [39f3829](../../commit/39f3829)) — Claude Code was used to debug the
+  "multiple identical forms" errors on first page load. It used Playwright to
+  confirm `home.py` was executing twice on a cold start, traced this to
+  Streamlit's legacy multipage auto-detection (triggered by a folder literally
+  named `pages/`) and, after that fix, to a second, deeper cause: a page-level
+  `from app import zoomLink` triggering a circular re-import of `app.py` that
+  re-ran `st.navigation(...).run()` recursively. Both root causes and fixes
+  are documented in the "Notes for maintainers" section above.
+- **README authoring** — sections of this README (structure, setup steps,
+  database schema table, maintainer notes) were drafted with Claude Code
+  based on the actual code and commit history, then reviewed and edited.
+- **Pre-publish security review** — before making this repository public,
+  Claude Code was used to audit the full git history and current source for
+  committed secrets, credentials, or sensitive data, and to review the code
+  for vulnerabilities (SQL injection, hardcoded credentials, insecure config).
+  It found no secrets in history, confirmed all DB/admin credentials are
+  sourced from `st.secrets` and never committed, and identified that
+  `.devcontainer/devcontainer.json` was running Streamlit with
+  `--server.enableXsrfProtection false --server.enableCORS false`; those
+  flags were removed as a result.
+
+All AI-assisted changes were reviewed before being committed. Feature work,
+bug fixes, and other changes not listed above were written without AI
+assistance.
