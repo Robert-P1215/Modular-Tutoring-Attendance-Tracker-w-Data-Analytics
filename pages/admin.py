@@ -2,7 +2,6 @@ import altair as alt
 import pandas as pd
 import streamlit as st
 from connect import run_query, get_connection
-from app import zoomLink
 
 CHART_HUE = "#2a78d6"
 
@@ -135,8 +134,8 @@ with st.sidebar:
         st.session_state.admin_authenticated = False
         st.rerun()
 
-col1, col2, col3, col4, col5, col6, col7 = st.tabs(
-    ["Session Records", "Manage Courses", "Manage Tutors", "Manage Professors", "Summary", "Reset Data", "Misc. Settings"]
+col1, col2, col3, col4, col5, col6 = st.tabs(
+    ["Session Records", "Manage Courses", "Manage Tutors", "Manage Professors", "Summary", "Reset Data"]
 )
 
 with col1:
@@ -541,14 +540,3 @@ with col6:
         disabled=not reset_tables_selected or reset_confirmation_text != RESET_CONFIRMATION_PHRASE,
     ):
         confirm_reset_data(reset_tables_selected)
-
-with col7:
-    st.header("Misc. Settings")
-    with st.form("misc_settings_form"):
-        zlink = st.text_input("Please insert the URL for this semster's zoom link", key="zoom_link", placeholder=zoomLink)
-        if st.form_submit_button("Save Zoom Link"):
-            if not zlink:
-                st.error("Please enter a valid URL.")
-            else:
-                run_query("UPDATE zoom SET zlink = %s", (zlink,))
-                st.success("Zoom link updated successfully.")

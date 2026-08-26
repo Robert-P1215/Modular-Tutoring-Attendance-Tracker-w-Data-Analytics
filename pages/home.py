@@ -1,8 +1,6 @@
 import streamlit as st
 import datetime
-import base64
 from connect import run_query
-from app import zoomLink
 
 
 st.title("Tutoring Session Attendance")
@@ -115,22 +113,6 @@ Welcome to the Tutoring Session Attendance App for Korean! We offer Korean tutor
 Please sign in with your PID to record your attendance or register as a first-time student if you have not done so before.
 """)
 
-with open("assets/zoom.png", "rb") as f:
-    zoom_image_b64 = base64.b64encode(f.read()).decode()
-
-st.sidebar.markdown(
-    f"""
-    <div style="text-align: center;">
-        <a href="{zoomLink}" target="_blank">
-            <img src="data:image/png;base64,{zoom_image_b64}" width="100">
-        </a>
-        <div style="font-size: 0.8rem; color: rgba(49, 51, 63, 0.6);">
-            Click to join the zoom session!
-        </div>
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
 
 tab1, tab2 = st.tabs(["Attendance Form", "First Time Student Registeration"])
 
